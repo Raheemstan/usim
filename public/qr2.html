@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <body translate="no">
+        <video id="preview" style="overflow: hidden; width: 100%; height:380px; object-fit: cover; border: 0;" autoplay="autoplay" class="active"></video>
+      <!-- <div class="btb-group btb-group-toggle mb-5" data-toggle="buttons"> -->
+        <!-- <label class="btn btn-primary active">
+          <input type="radio" name="options" value="1" autocomplete="off" checked="checked">Front Camera
+        </label>
+        <label class="btn btn-secondary">
+          <input type="radio" name="options" value="2" autocomplete="off">Back Camera
+        </label> -->
+      <!-- </div> -->
+          <script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-1b93190375e9ccc259df3a57c1abc0e64599724ae30d7ea4c6877eb615f89387.js"></script>
+      
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+      <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+            <script id="rendered-js">
+      var scanner = new Instascan.Scanner({
+        video: document.getElementById("preview"),
+        scanPeriod: 5,
+        mirror: false });
+      
+      scanner.addListener("scan", function (content) {
+        // alert(content);
+        window.parent.location.href=content;
+      });
+      Instascan.Camera.getCameras().
+      then(function (cameras) {
+        if (cameras.length > 0) {
+          scanner.start(cameras[0]);
+          $('[name="options"]').on("change", function () {
+            if ($(this).val() == 1) {
+              if (cameras[0] != "") {
+                scanner.start(cameras[0]);
+              } else {
+                alert("No Front camera found!");
+              }
+            } else if ($(this).val() == 2) {
+              if (cameras[1] != "") {
+                scanner.start(cameras[1]);
+              } else {
+                alert("No Back camera found!");
+              }
+            }
+          });
+        } else {
+          console.error("No cameras found.");
+          alert("No cameras found.");
+        }
+      }).
+      catch(function (e) {
+        console.error(e);
+        alert(e);
+      });
+      
+      //# sourceURL=pen.js
+          </script>
+      
+        
+      
+      
+      
+      
+       
+      </body>
+</body>
+</html>

@@ -1,6 +1,7 @@
-import {Link, useNavigate, useParams } from 'react-router-dom';
-import React, { useState, useEffect} from 'react';
-import { useContext } from 'react';
+import simage from '../stud2.jpg'
+import {Link, useParams, useNavigate} from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import {UserContext} from '../auth/usercontext';
 import Profile from '../reusable/profile'
 import Information from '../reusable/information'
@@ -9,12 +10,12 @@ import Board from '../reusable/board'
 import Buttons from '../reusable/buttons'
 import Options from '../reusable/options'
 import Table from '../reusable/table'
-import Loader from '../reusable/loading'
+import Loader from '../reusable/loading';
 // import { QrReader } from 'react-qr-reader';
 
-function Payment() {
+function Medpay() {
     const value = useContext(UserContext)
-    const {details:{name, authToken, authlev},setDetails}= value
+    const {details:{name, authToken, authlev}, setDetails}= value
     const nav = useNavigate()
     useEffect(() => {
         // localStorage.setItem('logs', JSON.stringify(details))
@@ -35,25 +36,18 @@ function Payment() {
             //console.log(level);
         }
         }
-        else{
-            console.log("empty")
-            nav('/')
-        }
         
     }, [])
     const params = useParams() 
-    const usertoken = params.usertoken.replaceAll('-', '/');
-    console.log(usertoken)
+    const usertoken = params.usertoken.replaceAll('-', '/'); 
 
     const [studdata, setStuddata] = useState('')
+    const [payment, setPayment] = useState([])
     const [paid, setPaid] = useState([])
     const [matno, setMatno] = useState('')
     const [rrr, setRrr] = useState('')
     const [purpose, setPurpose] = useState('')
-    const [dept, setDept] = useState('')
-    const [sch, setSch] = useState('')
-    const [lev, setLev] = useState('')
-    const [course, setCourse] = useState('')
+    const [sess, setSess] = useState('')
     const [logged, setLogged] = useState(0)
     
     useEffect(()=>{
@@ -63,7 +57,7 @@ function Payment() {
     useEffect(()=>{
         profile()
     },[])
-    const profile = () => {
+    const profile = async () => {
             var axios = require('axios');
             var qs = require('qs');
             var data = qs.stringify({
@@ -101,7 +95,7 @@ function Payment() {
             var qs = require('qs');
             var data = qs.stringify({
                 'mat_no':matno,
-                'authlev':'1'
+                'authlev':'3'
             });
             // start of config1
             var config1 = {
@@ -123,15 +117,16 @@ function Payment() {
               console.log(error);
             });
     }
+    
     const pushtrans = async () => {
         var axios = require('axios');
         var qs = require('qs');
         var data = qs.stringify({
         'teller_id': rrr,
         'mat_no': matno,
-        'desc': 'School Fees',
+        'desc': 'Medical',
         'sess': '1',
-        'unit':'1'
+        'unit':'3'
         });
         var config = {
         method: 'post',
@@ -154,52 +149,32 @@ function Payment() {
 
   return (
     <div className='App'>
-    {studdata ? '' : <Loader/>}
+    {studdata === '' ? <Loader/> : ''}
         <div className="container">
-            <Board user="Admin"/>
+            <Board user="Medical"/>
             <div className='rectangle dash'>
                 <div className='r-inner'>
                 <h2>Payment History</h2>
                     <div className='profile'>
                         <div className='prof'>
-                        <Profile data={studdata}  user={authlev}/>
+                            <Profile data={studdata}  user={authlev}/>
                             <Information info="Breakdown of">
-                                <Table info={paid}/>
+                                <Table info={paid} />
                             </Information>
                         </div>
                         <div className='bord'></div>
-                            {logged === 0 ? <div className='modular'>
+                        <div className='modular'>
                         <div className="box">
                             <div className="input">
                                 <h2>Acknowledge a payment</h2>
                                 <div className='inp'>
-                                    <input type="text"  placeholder="Matriculation Number" defaultValue={matno} disabled onChange={(e)=>{setMatno(e.target.value || {matno}); }}/>
+                                    <input type="text"  placeholder="Matriculation Number" value={matno} disabled/>
                                     <input type="text"  placeholder="RRR/Teller no." onChange={(e)=>{setRrr(e.target.value);}}/>
-                                    <select  disabled>
-                                        <option value="School Fees">School Fees</option>
-                                    </select>
                                     <input type="submit" value="Save " onClick={()=>pay()} />
                                 </div>
                             </div>
                         </div>
-                    </div>: 
-                            <div className='modular'>
-                            <div className="box">
-                                <div className="input">
-                                    <h2>Acknowledge a payment</h2>
-                                    <div className='inp'>
-                                        <input type="text"  placeholder="Matriculation Number" defaultValue={matno} disabled/>
-                                        <input type="text"  placeholder="RRR/Teller no."/>
-                                        <select>
-                                            <option value="Medical">Medical</option>
-                                            <option value="Library">Library</option>
-                                        </select>
-                                        <input type="submit" value="Save " onClick={()=>{setStuddata(1)}} />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        }
+                    </div>
                             
                         
                     </div>
@@ -211,4 +186,4 @@ function Payment() {
   );
 }
 
-export default Payment;
+export default Medpay;

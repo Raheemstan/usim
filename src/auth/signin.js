@@ -1,7 +1,73 @@
 import simage from '../stud3.webp'
-import React from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom'
+import {useState, useEffect, useContext} from 'react'
+import {UserContext} from '../auth/usercontext'
+
+
 function Signin() {
+    // states
+    const [success, setsuccess] = useState('Log in')
+    const [clicked, setclicked] = useState(0)
+    const nav = new useNavigate()
+    const {setDetails} = useContext(UserContext)
+    useEffect(() => {
+        // localStorage.setItem('logs', JSON.stringify(details))
+        const truth = localStorage.getItem('logs');
+        if(truth){
+            const kept = JSON.parse(localStorage.getItem('logs'))
+            const {credentials:{name, idnumber, level}} = kept
+            const{ token } = kept
+            console.log(name)
+            console.log(token)
+            setDetails({
+                name:name,
+                authlev:parseInt(level),
+                idnumber: idnumber
+            })
+            if(token){
+                nav('/dashboard')
+            }
+        }
+    }, [])
+    const log =  (e) => {
+        e.preventDefault()
+        setsuccess('Signing in')
+        setclicked(1)
+        var axios = require('axios');
+        var qs = require('qs');
+        var data = qs.stringify(pack);
+        var config = {
+        method: 'post',
+        url: 'http://127.0.0.1:8000/api/login',
+        headers: { 
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data : data
+        };
+
+        axios(config)
+        .then(function (response) {
+            
+            const {name, idnumber, level} = response.data.credentials
+            setDetails({
+                name:name,
+                authlev:level,
+                idnumber: idnumber
+            })
+            localStorage.setItem('logs', JSON.stringify(response.data))
+            console.log(JSON.stringify(response.data));
+                if(level){
+                    nav('/dashboard')
+                    console.log('success')
+                }
+        })
+        .catch(function (error) {
+            setsuccess('Invalid email or password')
+            setclicked(1)
+        console.log(error);
+        });
+    }
+    const [pack, setpack] = useState('')
   return (
     <div className='App'>
         <div className="main-container">
@@ -10,16 +76,14 @@ function Signin() {
             </div>
             <div className="form">
                 <div>
-                    <h1>Sign In</h1>
-                    <h2>Sign in to your account</h2>
-                    <form>
+                    <h1>USIMS</h1>
+                    <h2>Sign In</h2>
+                    <p>Sign in to your account</p>
+                    <form className='sforms'>
                         <div>
-                            <input type="text" placeholder="Email"></input>
-                            <input type="text" placeholder="Password"></input>
-                            <button className='signin'>Login</button>
-                            <p>OR</p>
-
-                            <Link to='/signup' className='signup' >Sign up</Link>
+                            <input type="text" placeholder="Staff ID" onChange={(e)=>{setpack({...pack, idnumber:e.target.value}); console.log(pack.email)}}></input>
+                            <input type="password" placeholder="Password" onChange={(e)=>{setpack({...pack, password: e.target.value}); console.log(pack.password)}}></input>
+                            <button className='signin' onClick={log}>{success}</button>
                         </div>
                     </form>
                 </div>

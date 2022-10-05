@@ -1,76 +1,95 @@
-import simage from '../stud2.jpg'
-import {Link} from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import React from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useContext } from 'react';
+import {UserContext} from '../auth/usercontext';
+import {useParams} from 'react-router-dom';
 import Profile from '../reusable/profile'
-import Information from '../reusable/information'
-import Formbox from '../reusable/formbox'
 import Buttons from '../reusable/buttons'
 import Board from '../reusable/board'
-import Options from '../reusable/options'
-import Table from '../reusable/table'
+import Editform from '../reusable/editform'
+import Loader from '../reusable/loading';
 // import { QrReader } from 'react-qr-reader';
 
 function Edit() {
-    const [data, setData] = useState([])
+    const value = useContext(UserContext)
+    const {details:{name, authToken, authlev}, setDetails}= value
+    const nav = useNavigate()
+    useEffect(() => {
+        // localStorage.setItem('logs', JSON.stringify(details))
+        const truth = localStorage.getItem('logs');
+        if(truth !== undefined){
+            const kept = JSON.parse(localStorage.getItem('logs'))
+            const {credentials:{name, idnumber, level}} = kept
+            const{ token } = kept
+            console.log(name)
+            console.log(token)
+            setDetails({
+                name:name,
+                authlev:parseInt(level),
+                idnumber: idnumber
+            })
+        }
+        else{
+            nav('/404');
+        }
+        
+    }, [])
+    
+    const params = useParams() 
+    const usertoken = params.usertoken.replaceAll('-', '/');
+    console.log(usertoken)
+
+    console.log(params)
+    console.log(usertoken)
+    const [studdata, setStuddata] = useState('')
     const [logged, setLogged] = useState(1)
-    const [studdata, setStuddata] = useState([])
-    const [card, setCard] = useState(1)
-    const [idcard, setIdcard] = useState()
-    const [firstname, setFirstname] = useState('')
-    const [middlename, setMiddlename] = useState('')
-    const [lastname, setLastname] = useState('')
-    const [school, setSchool] = useState('')
-    const [department, setDepartment] = useState('')
-    const [level, setLevel] = useState('')
-    const [course, setCourse] = useState('')
-    const [image, setImage] = useState("")
     
     useEffect(()=>{
-        const details = JSON.parse(localStorage.getItem('data'));
-        setStuddata(details);
-    }, [])
-    const {fname, mname, lname, school:sch, dept, level:lev, course:cour} = studdata
-    const edited = () => {
-        const data = {
-             'fname' : firstname,
-             'mname' : middlename,
-             'lname' : lastname,
-             'school' : school,
-             'dept' : department,
-             'level' : level,
-             'course' : course,
-         }
-         
-         setData(data);
-         setStuddata(data)
-         localStorage.setItem('data' , JSON.stringify(data))
-         if(setStuddata){
-             
-         }
-         else{
-             console.log('error');
-         }
- 
-         console.log(studdata);    
-     }
+        profile()
+    },[])
+    const profile = async () => {
+            var axios = require('axios');
+            var qs = require('qs');
+            var data = qs.stringify({
+                'qr_hash':usertoken
+            });
+        
+            // start of config1
+            var config1 = {
+              method: 'post',
+              url: 'http://127.0.0.1:8000/api/dashboard',
+              headers: { 
+                'Accept': 'application/json', 
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              data : data
+            };
+        
+            axios(config1)
+            .then(function (response) {
+                const [dat] = response.data
+                console.log(dat)
+                setStuddata(dat)
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+    }
     
   return (
     <div className='App'>
+    {studdata === '' ? <Loader/> : ''}
         <div className="container">
             <Board user="Admin"/>
             <div className='rectangle dash'>
                 <div className='r-inner'>
-                {logged === 0 ? <h2>Edit Student Profile</h2> : <h2>Profile of {fname}</h2>}
+                {logged === 0 ? <h2>Edit Student Profile</h2> : <h2>Student Profile</h2>}
                     <div className='profile'>
                         {logged === 0 ? 
                         <div className='noth'>Nothing to display</div> 
                         : 
                         <div className='prof'>
-                            <Profile data={studdata}/>
-                            <div className='idcard'>
-                                <img src={idcard} alt=''></img>
-                            </div>
+                        <Profile data={studdata} user={authlev}/>
                         </div>}
                         <div className='bord'></div>
                         {logged === 0 ? "": logged ===1 ?
@@ -79,10 +98,7 @@ function Edit() {
                                 <div className="input">
                                     <h2>Edit Student Details</h2>
                                     <div className='inp'>
-                                        <input type="text"  placeholder="First name" defaultValue={fname} onChange={(e)=>setFirstname(e.target.value || fname)}/>
-                                        <input type="text"  placeholder="Middle name" defaultValue={mname} onChange={(e)=>setMiddlename(e.target.value || mname)}/>
-                                        <input type="text"  placeholder="Last name" defaultValue={lname} onChange={(e)=>setLastname(e.target.value || lname)}/>
-                                        <input type="submit" value="Save " onClick={()=>{edited()}} />
+                                    <Editform data={studdata} />
                                     </div>
                                 </div>
                             </div>

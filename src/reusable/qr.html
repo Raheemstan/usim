@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+        <title>Web QR</title>
+        
+        <script type="text/javascript" src="https://webqr.com/llqrcode.js"></script>
+        <script type="text/javascript" src="https://apis.google.com/js/plusone.js" gapi_processed="true"></script>
+        <script type="text/javascript" src="https://webqr.com/webqr.js"></script>
+        
+        
+        
+        
+        <div id="main">
+        <div id="header">
+        <div style="position:relative;top:+20px;left:0px;">
+        <p id="mp1">
+        QR Code scanner
+        </p>
+        
+        </div>
+        <div id="mainbody" style="display: inline;">
+        <table class="tsel" width="100%" border="0">
+        <tbody><tr>
+        <td width="50%" valign="top" align="center">
+        <table class="tsel" border="0">
+        <tbody><tr>
+        <td><img class="selector" id="webcamimg" src="https://webqr.com/vid.png" onclick="setwebcam()" style="opacity: 1;" align="left"></td>
+        <td><img class="selector" id="qrimg" src="https://webqr.com/cam.png" onclick="setimg()" style="opacity: 0.2;" align="right"></td></tr>
+        <tr><td colspan="2" align="center">
+        <div id="outdiv"><video id="v" autoplay=""></video></div></td></tr>
+        </tbody></table>
+        </td>
+        </tr>
+        
+        <tr><td colspan="3" align="center">
+        <div id="result">- scanning -</div>
+        </td></tr>
+        </tbody></table>
+        
+        <!-- webqr_2016 -->
+        
+        </div>&nbsp;
+        <div id="footer">
+        
+        <h5 align="center">Copyright © 2011 <a target="_blank" href="http://www.lazarsoft.info">Lazar Laszlo</a></h5>
+        </div>
+        </div>
+        <canvas id="qr-canvas" style="width: 800px; height: 600px; display: none;"></canvas>
+        
+        
+        
+            <!-- <script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-1b93190375e9ccc259df3a57c1abc0e64599724ae30d7ea4c6877eb615f89387.js"></script> -->
+        
+          <script src="https://webqr.com/llqrcode.js"></script>
+              <script id="rendered-js">
+        load();
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-24451557-1']);
+        _gaq.push(['_trackPageview']);
+        
+        (function () {
+          var ga = document.createElement('script');ga.type = 'text/javascript';ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(ga, s);
+        })();
+        //# sourceURL=pen.js
+            </script>
+        
+          
+        
+        
+        
+        
+         
+        </div>
+</body>
+</html>

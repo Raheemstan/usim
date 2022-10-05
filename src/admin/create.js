@@ -1,127 +1,138 @@
-import simage from '../stud2.jpg'
 import {Link, useNavigate} from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
-import {useReactToPrint} from 'react-to-print'
-import React from 'react';
-import Profile from '../reusable/profile'
-import Information from '../reusable/information'
-import Formbox from '../reusable/formbox'
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { useContext } from 'react';
+import {UserContext} from '../auth/usercontext';
 import Buttons from '../reusable/buttons'
 import Board from '../reusable/board'
-import Options from '../reusable/options'
-import Table from '../reusable/table'
-import QRCode from 'react-qr-code';
-// import { QrReader } from 'react-qr-reader';
+import loader from '../load.gif'
 
 function Create() {
-    const [logged, setLogged] = useState(0)
-    const [data, setData] = useState([])
-    const [studdata, setStuddata] = useState([])
+    const value = useContext(UserContext)
+    const {details:{name, authToken, authlev}}= value
+    const nav = useNavigate()
+    useEffect(() => {
+        if (authToken === '' || parseInt(authlev) !== 1) {
+            nav('/404');
+        }
+    }, [authToken])
     const [firstname, setFirstname] = useState([])
-    const [middlename, setMiddlename] = useState([])
+    const [matno, setMatno] = useState([])
     const [lastname, setLastname] = useState([])
     const [school, setSchool] = useState([])
     const [department, setDepartment] = useState([])
     const [level, setLevel] = useState([])
     const [course, setCourse] = useState([])
     const [image, setImage] = useState("")
-    const [imageUrl, setImageUrl] = useState("")
-    const [card, setCard] = useState()
-    const [text, setText] = useState('');
-    const componentRef = useRef();
-
-    const nav = useNavigate()
-
-    const print=useReactToPrint({
-        content: () => componentRef.current
-    })
-
-    const populate = () => {
-       const data = {
-            'fname' : firstname,
-            'mname' : middlename,
-            'lname' : lastname,
-            'school' : school,
-            'dept' : department,
-            'level' : level,
-            'course' : course,
-        }
-        
-        setData(data);
-        setStuddata(data)
-        localStorage.setItem('data' , JSON.stringify(data))
-        if(setStuddata){
-            
-        }
-        else{
-            console.log('error');
-        }
-
-        nav('/profile')
+    const [load, setLoad] = useState(0);
+    const [success, setSuccess] = useState(0);
+    const [hash, setHash] = useState(0)
+    const populate = (e) => {
+        e.preventDefault()
+        setLoad(1)
+        pushtrans()
+        // nav('/profile', {usertoken:})
+        // console.log('profile/'+hash)
     }
+    const pushtrans = async () => {
+        var axios = require('axios');
+        var FormData = require('form-data');
+        var data = new FormData();
+        data.append('passport', image);
+        data.append('firstname', firstname);
+        data.append('mat_no', matno);
+        data.append('surname', lastname);
+        data.append('school', school);
+        data.append('department', department);
+        data.append('level', level);
+        data.append('course', course);
+
+        var config = {
+        method: 'post',
+        url: 'http://127.0.0.1:8000/api/add-student',
+        headers: { 
+            'Accept': 'application/json', 
+        },
+        data : data
+        };
+
+        axios(config)
+        .then(function (response) {
+        console.log(response.data.qr_hash);
+        setHash(response.data.mat_no)
+        setLoad(0)
+        setSuccess(1)
+        const replaced = response.data.qr_hash.replaceAll('/', '-');
+        console.log(replaced)
+        window.setTimeout(function() {
+            nav('../prof/'+replaced)
+        }, 5000)
+        
+        })
+        .catch(function (error) {
+        console.log(error);
+        setLoad(0)
+        setSuccess(2)
+        });
+
+    }
+    
   return (
+     
     <div className='App'>
         <div className="container">
             <Board user="Admin"/>
             <div className='rectangle dash'>
                 <div className='r-inner'>
-                {logged === 0 ? <h2>Create Student Profile</h2> : <h2>Profile of Musa Taliban</h2>}
+                <h2>Create Student Profile</h2>
                     <div className='profile'>
-                        {logged === 0 ? 
-                        <div className='noth'>Nothing to display</div> 
-                        : 
-                        <div className='prof'>
-                            <Profile data={studdata} />
-                            <div className='generate'>
-                                <h2>Print ID below card</h2>
-                            </div>
-                            <div className='idcard' ref={componentRef}>
-                                <QRCode
-                                    size={256}
-                                    style={{ height: "auto", maxWidth: "40%", width: "40%" }}
-                                    value={middlename}
-                                    viewBox={`0 0 256 256`}
-                                />
-                            </div>
-                            <button onClick={()=>{print()}}>print</button>
-                        </div>}
+                    <div></div>
                         <div className='bord'></div>
-                        {logged === 0 ? <div className='modular'>
+                        <div className='modular'>
                             <div className="box">
                                 <div className="input">
                                     <h2>Create a Student</h2>
                                     <div className='inp'>
-                                    <form>
-                                        <input type="text"  placeholder="First name" onChange={(e)=>{setFirstname(e.target.value); console.log(firstname);}}/>
-                                        <input type="text"  placeholder="Middle name" onChange={(e)=>{setMiddlename(e.target.value)}} />
-                                        <input type="text"  placeholder="Last name" onChange={(e)=>{setLastname(e.target.value)}}/>
+                                    <form onSubmit={populate} encType='multipart/form-data'>
+                                        <div><label>Matriculation Number</label>
+                                        <input type="text"  placeholder="Matno" onChange={(e)=>{setMatno(e.target.value)}} /></div>
+                                        <div style={{display:'grid', gridTemplateColumns:'repeat(2, auto)', justifyContent:'start', gap:'10px'}}>
+                                        <div><label>First Name</label><input type="text"  placeholder="First name" onChange={(e)=>{setFirstname(e.target.value); console.log(firstname);}}/></div>
+                                        <div><label>Last Name</label><input type="text"  placeholder="Last name" onChange={(e)=>{setLastname(e.target.value)}}/></div>
+                                        <div><label>School</label>
                                         <select onChange={(e)=>{setSchool(e.target.value)}}>
                                             <option value="">School</option>
                                             <option value="SICT">SICT</option>
-                                        </select>
+                                        </select></div>
+                                        <div><label>Department</label>
                                         <select onChange={(e)=>{setDepartment(e.target.value);}}>
                                             <option value="">Department</option>
                                             <option value="Computer Science">Computer Science</option>
-                                            <option value="Office Technology Management">OTM</option>
-                                        </select>
+                                            <option value="OTM">OTM</option>
+                                        </select></div>
+                                        <div><label>Levels</label>
                                         <select onChange={(e)=>{setLevel(e.target.value);}}>
                                             <option value="">Level</option>
                                             <option value="ND1">ND1</option>
                                             <option value="HND1">HND1</option>
-                                        </select>
-                                        <input type="text"  placeholder="Course" onChange={(e)=>{setCourse(e.target.value)}}/>
-                                        <input type="file"  placeholder="Course" onChange={(e)=>{setImage(e.target.files[0]);}}/>
-                                        <input type="submit" value="Save " onClick={()=>{populate()}} />
+                                        </select></div>
+                                        <div><label>Course</label>
+                                        <select onChange={(e)=>{setCourse(e.target.value);}}>
+                                            <option value="">Course</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Neuroscience">Neuroscience</option>
+                                        </select></div>
+                                        <div><label>Profle image</label>
+                                        <input type="file"  placeholder="Course" onChange={(e)=>{setImage(e.target.files[0]);}}/></div>
+                                        {/*console.log(image)*/}
+                                        </div>
+                                        <input type="submit" value="Save " onClick={populate}/>
+                                        {load === 1 ?<img src={loader} alt="" className='loader'></img>:''}
                                     </form>
+                                    {success === 1 ? <span style={{color:'green'}}>Successful Please wait...</span>: success === 2 ? <span style={{color:'red'}}>Fill all the fillables</span>: ''}
                                     </div>
                                 </div>
                             </div>
-                        </div>: 
-                        <div className='modules'>
-                            <Buttons />
                         </div>
-                        }
                             
                         
                     </div>
@@ -129,7 +140,7 @@ function Create() {
             </div>
 
         </div>
-    </div>
+    </div> 
   );
 }
 

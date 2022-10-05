@@ -11,7 +11,7 @@ function Signup() {
             <div className="form">
                 <div>
                     <h1>Sign Up</h1>
-                    <form>
+                    <form className='sforms'>
                         <div>
                             <input type="text" placeholder="Email"></input>
                             <input type="text" placeholder="Staff ID"></input>
